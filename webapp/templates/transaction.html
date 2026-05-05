@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card">
+  <h2>Nouvelle transaction</h2>
+  <p class="muted">Détection suspecte (score ML): {{ threshold }}</p>
+  <p><strong>Solde disponible:</strong> {{ current_balance_label }}</p>
+  <form method="POST" class="form-grid">
+    <label>Bénéficiaire</label>
+    <input type="text" name="recipient" placeholder="alice, bob, charles..." required>
+    <div class="hint-box">
+      Comptes connus: {{ known_users | join(', ') }}
+    </div>
+    <label>Montant (FCFA)</label>
+    <input type="number" step="1" min="100" name="amount" required>
+    <p class="muted compact">Si le bénéficiaire existe, le solde sera crédité après validation.</p>
+    <button type="submit">Envoyer</button>
+  </form>
+</section>
+{% endblock %}

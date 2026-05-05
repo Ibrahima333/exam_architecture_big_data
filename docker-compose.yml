@@ -1,0 +1,103 @@
+
+services:
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:v24.1.10
+    restart: unless-stopped
+    command:
+      - redpanda
+      - start
+      - --overprovisioned
+      - --smp
+      - "1"
+      - --memory
+      - 1G
+      - --reserve-memory
+      - 0M
+      - --check=false
+      - --node-id
+      - "0"
+      - --kafka-addr
+      - PLAINTEXT://0.0.0.0:9092,OUTSIDE://0.0.0.0:19092
+      - --advertise-kafka-addr
+      - PLAINTEXT://redpanda:9092,OUTSIDE://localhost:19092
+    ports:
+      - "19092:19092"
+
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  producer:
+    build:
+      context: ./producer
+    restart: unless-stopped
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=redpanda:9092
+      - KAFKA_TOPIC=transactions
+      - PORT=8001
+    depends_on:
+      - redpanda
+    expose:
+      - "8001"
+
+  consumer:
+    build:
+      context: ./consumer
+    restart: unless-stopped
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=redpanda:9092
+      - KAFKA_TOPIC=transactions
+      - MONGO_URI=mongodb://mongo:27017
+      - INITIAL_BALANCE=1000000
+    depends_on:
+      - redpanda
+      - mongo
+
+  webapp:
+    build:
+      context: ./webapp
+    restart: unless-stopped
+    environment:
+      - FLASK_SECRET_KEY=dev_secret_key_change_me
+      - PRODUCER_URL=http://producer:8001/publish
+      - FRAUD_THRESHOLD=0.65
+      - MONGO_URI=mongodb://mongo:27017
+      - INITIAL_BALANCE=1000000
+      - SPARK_LOCAL_HOSTNAME=webapp
+      - PORT=5000
+    depends_on:
+      - producer
+      - mongo
+    ports:
+      - "5000:5000"
+
+  dashboard:
+    build:
+      context: ./dashboard
+    restart: unless-stopped
+    environment:
+      - MONGO_URI=mongodb://mongo:27017
+      - PORT=5000
+    depends_on:
+      - mongo
+    ports:
+      - "5001:5000"
+
+  compass-web:
+    image: haohanyang/compass-web:rc
+    restart: unless-stopped
+    environment:
+      - CW_MONGO_URI=mongodb://mongo:27017
+      - CW_HOST=0.0.0.0
+      - CW_PORT=8080
+    depends_on:
+      - mongo
+    ports:
+      - "8089:8080"
+
+volumes:
+  mongo_data:

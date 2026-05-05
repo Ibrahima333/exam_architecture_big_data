@@ -1,0 +1,70 @@
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at top left, rgba(56, 189, 248, 0.14), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(52, 211, 153, 0.12), transparent 26%),
+    #0f172a;
+  color: #e5eefb;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+.container {
+  width: min(1100px, 94vw);
+  margin: 20px auto;
+}
+
+header {
+  margin-bottom: 14px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.card {
+  background: rgba(13, 21, 43, 0.88);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 12px;
+  padding: 16px;
+  backdrop-filter: blur(14px);
+}
+
+.card p {
+  font-size: 28px;
+  margin: 8px 0 0;
+}
+
+.ok p {
+  color: #34d399;
+}
+
+.danger p {
+  color: #fb7185;
+}
+
+.grid {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 12px;
+}
+
+.panel {
+  background: rgba(13, 21, 43, 0.88);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 12px;
+  padding: 16px;
+  backdrop-filter: blur(14px);
+}
+
+.wide {
+  grid-column: 1 / -1;
+}
+
+ul {
+  margin: 0;
+  padding-left: 16px;
+  line-height: 1.7;
+}

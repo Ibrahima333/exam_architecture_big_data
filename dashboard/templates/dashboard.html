@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fraud Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Dashboard temps réel</h1>
+      <p id="updated">MAJ: {{ stats.updated_at }}</p>
+    </header>
+
+    <section class="cards">
+      <div class="card"><h3>Total</h3><p id="total">{{ stats.total }}</p></div>
+      <div class="card ok"><h3>Approuvées</h3><p id="approved">{{ stats.approved }}</p></div>
+      <div class="card danger"><h3>Rejetées</h3><p id="rejected">{{ stats.rejected }}</p></div>
+    </section>
+
+    <section class="grid">
+      <div class="panel">
+        <h2>Soldes (MongoDB en FCFA)</h2>
+        <ul id="balances">
+          {% for item in stats.balances %}
+            <li>{{ item.user }}: {{ item.balance|fcfa }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div class="panel">
+        <h2>Dernière transaction live</h2>
+        <div id="live-transaction">
+          {% if stats.live_transaction %}
+            <p><strong>{{ stats.live_transaction.user }}</strong> vers <strong>{{ stats.live_transaction.recipient }}</strong></p>
+            <p>{{ stats.live_transaction.amount|fcfa }} - {{ stats.live_transaction.final_status }}</p>
+            <p>Solde émetteur: {{ stats.live_transaction.sender_balance|fcfa }}</p>
+            <p>Solde bénéficiaire: {{ stats.live_transaction.recipient_balance|fcfa }}</p>
+          {% else %}
+            <p>Aucune transaction encore traitée.</p>
+          {% endif %}
+        </div>
+      </div>
+      <div class="panel wide">
+        <h2>Dernières transactions (MongoDB)</h2>
+        <ul id="transactions">
+          {% for tx in stats.last_transactions %}
+            <li>
+              {{ tx.user }} → {{ tx.recipient }} | {{ tx.amount|fcfa }} | {{ tx.final_status }}
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    async function refresh() {
+      const res = await fetch('/api/stats');
+      const data = await res.json();
+      document.getElementById('updated').textContent = 'MAJ: ' + data.updated_at;
+      document.getElementById('total').textContent = data.total;
+      document.getElementById('approved').textContent = data.approved;
+      document.getElementById('rejected').textContent = data.rejected;
+
+      const balances = document.getElementById('balances');
+      balances.innerHTML = '';
+      data.balances.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = `${item.user}: ${Number(item.balance).toFixed(0)} FCFA`;
+        balances.appendChild(li);
+      });
+
+      const live = document.getElementById('live-transaction');
+      if (data.live_transaction) {
+        live.innerHTML = `
+          <p><strong>${data.live_transaction.user}</strong> vers <strong>${data.live_transaction.recipient}</strong></p>
+          <p>${Number(data.live_transaction.amount).toFixed(0)} FCFA - ${data.live_transaction.final_status}</p>
+          <p>Solde émetteur: ${Number(data.live_transaction.sender_balance).toFixed(0)} FCFA</p>
+          <p>Solde bénéficiaire: ${Number(data.live_transaction.recipient_balance).toFixed(0)} FCFA</p>
+        `;
+      }
+
+      const transactions = document.getElementById('transactions');
+      transactions.innerHTML = '';
+      data.last_transactions.forEach(tx => {
+        const li = document.createElement('li');
+        li.textContent = `${tx.user} → ${tx.recipient} | ${Number(tx.amount).toFixed(0)} FCFA | ${tx.final_status}`;
+        transactions.appendChild(li);
+      });
+    }
+
+    setInterval(refresh, 3000);
+  </script>
+</body>
+</html>

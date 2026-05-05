@@ -1,0 +1,4 @@
+flask==3.0.3
+requests==2.32.3
+pymongo==4.8.0
+pyspark==3.5.1

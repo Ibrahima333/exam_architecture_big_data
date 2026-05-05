@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card">
+  <h2>Connexion</h2>
+  <form method="POST" class="form-grid">
+    <label>Nom d'utilisateur</label>
+    <input type="text" name="username" placeholder="alice" required>
+    <label>Mot de passe</label>
+    <input type="password" name="password" placeholder="••••••" required>
+    <button type="submit">Se connecter</button>
+  </form>
+</section>
+{% endblock %}

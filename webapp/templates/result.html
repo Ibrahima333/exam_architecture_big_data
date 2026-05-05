@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card">
+  <h2>Transaction envoyée</h2>
+  {% if suspicious %}
+    <p class="muted">Flux suspect confirmé par PIN.</p>
+  {% else %}
+    <p class="muted">Flux normal envoyé directement.</p>
+  {% endif %}
+  <div class="live-status" data-event-id="{{ result.get('event_id') }}">
+    <p><strong>Event ID:</strong> {{ result.get('event_id') }}</p>
+    <p><strong>Statut Kafka:</strong> {{ result.get('status') }}</p>
+    <p id="tx-live-state" class="status-pill pending">En attente du traitement</p>
+    <div id="tx-live-details" class="result-list"></div>
+  </div>
+  <p class="muted">Solde actuel: <strong id="current-balance">{{ current_balance_label }}</strong></p>
+  <a href="{{ url_for('transaction') }}" class="btn-link">Nouvelle transaction</a>
+</section>
+
+<script>
+  const container = document.querySelector('.live-status');
+  const eventId = container?.dataset.eventId;
+  const stateLabel = document.getElementById('tx-live-state');
+  const details = document.getElementById('tx-live-details');
+
+  async function refreshTransaction() {
+    if (!eventId) {
+      return;
+    }
+
+    const response = await fetch(`/api/transactions/${eventId}`);
+    const data = await response.json();
+    if (data.status === 'pending') {
+      stateLabel.textContent = 'En attente du traitement';
+      stateLabel.className = 'status-pill pending';
+      return;
+    }
+
+    stateLabel.textContent = data.final_status || 'TRAITEE';
+    stateLabel.className = `status-pill ${String(data.final_status || '').toLowerCase()}`;
+    details.innerHTML = `
+      <p><strong>Raison:</strong> ${data.status_reason || 'N/A'}</p>
+      <p><strong>Montant:</strong> ${Number(data.amount || 0).toFixed(0)} FCFA</p>
+      <p><strong>Solde émetteur:</strong> ${Number(data.sender_balance || 0).toFixed(0)} FCFA</p>
+      <p><strong>Solde bénéficiaire:</strong> ${Number(data.recipient_balance || 0).toFixed(0)} FCFA</p>
+      <p><strong>Destinataire existant:</strong> ${data.recipient_found ? 'Oui' : 'Non'}</p>
+    `;
+    const balance = document.getElementById('current-balance');
+    if (balance) {
+      balance.textContent = `${Number(data.sender_balance || 0).toFixed(0)} FCFA`;
+    }
+  }
+
+  refreshTransaction();
+  setInterval(refreshTransaction, 2000);
+</script>
+{% endblock %}

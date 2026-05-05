@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card warning">
+  <h2>Transaction suspecte</h2>
+  <p>Merci de confirmer avec votre code PIN.</p>
+  <form method="POST" class="form-grid">
+    <label>Code PIN</label>
+    <input type="password" name="pin" placeholder="••••" maxlength="6" required>
+    <button type="submit">Valider PIN</button>
+  </form>
+</section>
+{% endblock %}
