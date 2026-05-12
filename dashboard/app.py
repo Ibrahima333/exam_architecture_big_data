@@ -15,6 +15,7 @@ accounts_collection = db["accounts"]
 
 
 def format_fcfa(value):
+    # Petit helper pour afficher les montants proprement.
     return f"{float(value):,.0f} FCFA".replace(",", " ")
 
 
@@ -22,6 +23,7 @@ app.jinja_env.filters["fcfa"] = format_fcfa
 
 
 def gather_stats():
+    # On rassemble en une seule fois les infos utiles pour l'écran dashboard.
     total = tx_collection.count_documents({})
     approved = tx_collection.count_documents({"final_status": "APPROVED"})
     rejected = tx_collection.count_documents({"final_status": "REJECTED"})
@@ -61,6 +63,7 @@ def health():
 
 @app.route("/")
 def dashboard():
+    # Page principale du dashboard.
     return render_template("dashboard.html", stats=gather_stats())
 
 

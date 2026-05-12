@@ -36,6 +36,23 @@ body {
   align-items: center;
   margin-bottom: 18px;
   gap: 16px;
+  flex-wrap: wrap;
+}
+
+.topbar-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.topbar-actions a {
+  color: var(--text);
+  text-decoration: none;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .userbox {
@@ -60,6 +77,25 @@ body {
 .form-grid {
   display: grid;
   gap: 10px;
+}
+
+.split-card {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 18px;
+}
+
+.info-box {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.plain-list {
+  margin: 0;
+  padding-left: 18px;
+  line-height: 1.8;
 }
 
 label {
@@ -163,4 +199,20 @@ button,
 .status-pill.rejected {
   background: rgba(251, 113, 133, 0.14);
   color: var(--danger);
+}
+
+@media (max-width: 760px) {
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .split-card {
+    display: block;
+  }
+
+  .cards,
+  .grid {
+    grid-template-columns: 1fr;
+  }
 }

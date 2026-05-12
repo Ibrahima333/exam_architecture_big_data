@@ -11,18 +11,23 @@
     <header class="topbar">
       <div>
         <h1>Fraud Guard</h1>
+        <p class="muted compact">Détection de fraude simple avec modèle Spark, Kafka et MongoDB.</p>
         {% if session.get('username') and current_balance_label is defined %}
           <p class="muted compact">Solde actuel: <strong>{{ current_balance_label }}</strong></p>
         {% endif %}
       </div>
-      {% if session.get('username') %}
-        <div class="userbox">
-          <span>{{ session.get('username') }}</span>
-          <form method="POST" action="{{ url_for('logout') }}">
-            <button type="submit" class="btn-secondary">Déconnexion</button>
-          </form>
-        </div>
-      {% endif %}
+      <div class="topbar-actions">
+        <a href="http://localhost:5001" target="_blank" rel="noreferrer">Dashboard</a>
+        <a href="http://localhost:8080" target="_blank" rel="noreferrer">Airflow</a>
+        {% if session.get('username') %}
+          <div class="userbox">
+            <span>{{ session.get('username') }}</span>
+            <form method="POST" action="{{ url_for('logout') }}">
+              <button type="submit" class="btn-secondary">Déconnexion</button>
+            </form>
+          </div>
+        {% endif %}
+      </div>
     </header>
 
     {% with messages = get_flashed_messages() %}

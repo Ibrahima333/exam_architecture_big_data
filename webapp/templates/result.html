@@ -2,14 +2,9 @@
 {% block content %}
 <section class="card">
   <h2>Transaction envoyée</h2>
-  {% if suspicious %}
-    <p class="muted">Flux suspect confirmé par PIN.</p>
-  {% else %}
-    <p class="muted">Flux normal envoyé directement.</p>
-  {% endif %}
   <div class="live-status" data-event-id="{{ result.get('event_id') }}">
     <p><strong>Event ID:</strong> {{ result.get('event_id') }}</p>
-    <p><strong>Statut Kafka:</strong> {{ result.get('status') }}</p>
+    <p><strong>Statut d'envoi:</strong> {{ result.get('status') }}</p>
     <p id="tx-live-state" class="status-pill pending">En attente du traitement</p>
     <div id="tx-live-details" class="result-list"></div>
   </div>
@@ -36,7 +31,7 @@
       return;
     }
 
-    stateLabel.textContent = data.final_status || 'TRAITEE';
+    stateLabel.textContent = data.final_status || 'TRAITÉE';
     stateLabel.className = `status-pill ${String(data.final_status || '').toLowerCase()}`;
     details.innerHTML = `
       <p><strong>Raison:</strong> ${data.status_reason || 'N/A'}</p>

@@ -37,7 +37,7 @@
             <p>Solde émetteur: {{ stats.live_transaction.sender_balance|fcfa }}</p>
             <p>Solde bénéficiaire: {{ stats.live_transaction.recipient_balance|fcfa }}</p>
           {% else %}
-            <p>Aucune transaction encore traitée.</p>
+            <p>Aucune transaction n'a encore été traitée.</p>
           {% endif %}
         </div>
       </div>
@@ -48,6 +48,8 @@
             <li>
               {{ tx.user }} → {{ tx.recipient }} | {{ tx.amount|fcfa }} | {{ tx.final_status }}
             </li>
+          {% else %}
+            <li>Aucune donnée pour le moment.</li>
           {% endfor %}
         </ul>
       </div>
@@ -83,11 +85,17 @@
 
       const transactions = document.getElementById('transactions');
       transactions.innerHTML = '';
-      data.last_transactions.forEach(tx => {
+      if (!data.last_transactions.length) {
         const li = document.createElement('li');
-        li.textContent = `${tx.user} → ${tx.recipient} | ${Number(tx.amount).toFixed(0)} FCFA | ${tx.final_status}`;
+        li.textContent = 'Aucune donnée pour le moment.';
         transactions.appendChild(li);
-      });
+      } else {
+        data.last_transactions.forEach(tx => {
+          const li = document.createElement('li');
+          li.textContent = `${tx.user} → ${tx.recipient} | ${Number(tx.amount).toFixed(0)} FCFA | ${tx.final_status}`;
+          transactions.appendChild(li);
+        });
+      }
     }
 
     setInterval(refresh, 3000);

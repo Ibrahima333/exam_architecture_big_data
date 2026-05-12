@@ -16,6 +16,7 @@ producer = None
 
 
 def get_producer():
+    # On garde une seule instance KafkaProducer pour éviter les connexions répétées.
     global producer
     if producer:
         return producer
@@ -44,6 +45,7 @@ def health():
 
 @app.route("/publish", methods=["POST"])
 def publish():
+    # Le producer ajoute un identifiant et envoie le message dans Redpanda.
     payload = request.get_json(force=True) or {}
     payload["event_id"] = str(uuid.uuid4())
     payload["ingested_at"] = datetime.utcnow().isoformat()

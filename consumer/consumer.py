@@ -12,15 +12,16 @@ MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
 INITIAL_BALANCE = float(os.getenv("INITIAL_BALANCE", "1000000"))
 
 KNOWN_USERS = {
-    "alice",
-    "bob",
-    "charles",
+    "moussa",
+    "binta",
+    "rama",
     "diane",
     "fatou",
 }
 
 
 def connect_kafka():
+    # Boucle de reconnexion simple si Redpanda n'est pas encore prêt.
     attempt = 0
     while True:
         attempt += 1
@@ -42,6 +43,7 @@ def connect_kafka():
 
 
 def ensure_account(accounts_collection, username):
+    # Crée le compte utilisateur s'il n'existe pas encore.
     if not username:
         return
     accounts_collection.update_one(
@@ -52,12 +54,14 @@ def ensure_account(accounts_collection, username):
 
 
 def get_balance(accounts_collection, username):
+    # Lit le solde actuel de l'utilisateur dans MongoDB.
     ensure_account(accounts_collection, username)
     account = accounts_collection.find_one({"username": username}, {"balance": 1})
     return float(account["balance"]) if account and "balance" in account else INITIAL_BALANCE
 
 
 def main():
+    # Le consumer lit Kafka, applique les règles métier, puis écrit dans MongoDB.
     consumer = connect_kafka()
     mongo = MongoClient(MONGO_URI)
     db = mongo["fraud_db"]
@@ -68,6 +72,7 @@ def main():
         ensure_account(accounts_collection, username)
 
     for message in consumer:
+        # Les données reçues viennent du producer.
         tx = message.value
         amount = float(tx.get("amount", 0))
         score = float(tx.get("fraud_score", 0))
@@ -89,6 +94,7 @@ def main():
             ensure_account(accounts_collection, recipient)
             recipient_balance = get_balance(accounts_collection, recipient)
 
+        # Règles simples de validation finale.
         fraud_detected = (score > 0.85 and not pin_verified) or amount > 2500000
         insufficient_funds = amount > sender_balance
         invalid_amount = amount <= 0
@@ -113,6 +119,7 @@ def main():
         recipient_new_balance = recipient_balance
 
         if final_status == "APPROVED":
+            # Mise à jour des soldes seulement si la transaction passe.
             sender_new_balance = max(0.0, sender_balance - amount)
             accounts_collection.update_one(
                 {"username": user},
@@ -131,6 +138,7 @@ def main():
             tx_status = "rejected"
 
         tx_document = {
+            # On garde l'historique complet pour le dashboard et le réentraînement.
             **tx,
             "final_status": final_status,
             "status_reason": status_reason,
