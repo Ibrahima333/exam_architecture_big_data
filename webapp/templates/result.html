@@ -1,52 +1,105 @@
 {% extends "base.html" %}
 {% block content %}
-<section class="card">
-  <h2>Transaction envoyée</h2>
-  <div class="live-status" data-event-id="{{ result.get('event_id') }}">
-    <p><strong>Event ID:</strong> {{ result.get('event_id') }}</p>
-    <p><strong>Statut d'envoi:</strong> {{ result.get('status') }}</p>
-    <p id="tx-live-state" class="status-pill pending">En attente du traitement</p>
-    <div id="tx-live-details" class="result-list"></div>
+<section class="card result-card">
+  <div class="card-header">
+    <h2>{% if suspicious %}Transaction confirmée{% else %}Transaction envoyée{% endif %}</h2>
+    <p class="card-subtitle">{% if suspicious %}Votre transaction a été validée et est en cours de traitement.{% else %}Votre transaction a été transmise et est en cours de traitement.{% endif %}</p>
   </div>
-  <p class="muted">Solde actuel: <strong id="current-balance">{{ current_balance_label }}</strong></p>
-  <a href="{{ url_for('transaction') }}" class="btn-link">Nouvelle transaction</a>
+  
+  <div class="result-status">
+    <div class="status-header">
+      <span class="status-label">Référence</span>
+      <span class="status-id">{{ result.get('event_id') }}</span>
+    </div>
+    
+    <div class="live-status" data-event-id="{{ result.get('event_id') }}">
+      <div class="status-indicator">
+        <span class="status-dot pending"></span>
+        <span class="status-text" id="tx-live-state">En attente de traitement</span>
+      </div>
+      
+      <div id="tx-live-details" class="result-details"></div>
+    </div>
+  </div>
+  
+  <div class="balance-update">
+    <div class="balance-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="2" y="4" width="20" height="16" rx="2"/>
+        <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/>
+      </svg>
+    </div>
+    <div class="balance-info">
+      <span class="balance-label">Solde actuel</span>
+      <span class="balance-value" id="current-balance">{{ current_balance_label }}</span>
+    </div>
+  </div>
+  
+  <div class="form-actions">
+    <a href="{{ url_for('transaction') }}" class="btn-primary btn-large">Effectuer un nouveau transfert</a>
+  </div>
 </section>
 
 <script>
-  const container = document.querySelector('.live-status');
-  const eventId = container?.dataset.eventId;
-  const stateLabel = document.getElementById('tx-live-state');
-  const details = document.getElementById('tx-live-details');
+const container = document.querySelector('.live-status');
+const eventId = container?.dataset.eventId;
+const stateLabel = document.getElementById('tx-live-state');
+const details = document.getElementById('tx-live-details');
+const currentBalance = document.getElementById('current-balance');
 
-  async function refreshTransaction() {
-    if (!eventId) {
-      return;
-    }
+async function refreshTransaction() {
+  if (!eventId) return;
 
+  try {
     const response = await fetch(`/api/transactions/${eventId}`);
     const data = await response.json();
+    
     if (data.status === 'pending') {
-      stateLabel.textContent = 'En attente du traitement';
-      stateLabel.className = 'status-pill pending';
+      stateLabel.textContent = 'En attente de traitement';
+      stateLabel.className = 'status-text pending';
+      updateStatusDot('pending');
       return;
     }
 
-    stateLabel.textContent = data.final_status || 'TRAITÉE';
-    stateLabel.className = `status-pill ${String(data.final_status || '').toLowerCase()}`;
+    stateLabel.textContent = data.final_status || 'Traitée';
+    stateLabel.className = `status-text ${String(data.final_status || '').toLowerCase()}`;
+    updateStatusDot(String(data.final_status || '').toLowerCase());
+    
     details.innerHTML = `
-      <p><strong>Raison:</strong> ${data.status_reason || 'N/A'}</p>
-      <p><strong>Montant:</strong> ${Number(data.amount || 0).toFixed(0)} FCFA</p>
-      <p><strong>Solde émetteur:</strong> ${Number(data.sender_balance || 0).toFixed(0)} FCFA</p>
-      <p><strong>Solde bénéficiaire:</strong> ${Number(data.recipient_balance || 0).toFixed(0)} FCFA</p>
-      <p><strong>Destinataire existant:</strong> ${data.recipient_found ? 'Oui' : 'Non'}</p>
+      <div class="detail-row">
+        <span class="detail-label">Montant</span>
+        <span class="detail-value">${Number(data.amount || 0).toLocaleString('fr-FR')} FCFA</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Solde émetteur</span>
+        <span class="detail-value">${Number(data.sender_balance || 0).toLocaleString('fr-FR')} FCFA</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Solde bénéficiaire</span>
+        <span class="detail-value">${Number(data.recipient_balance || 0).toLocaleString('fr-FR')} FCFA</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Destinataire</span>
+        <span class="detail-value">${data.recipient_found ? 'Existant' : 'Nouveau'}</span>
+      </div>
     `;
-    const balance = document.getElementById('current-balance');
-    if (balance) {
-      balance.textContent = `${Number(data.sender_balance || 0).toFixed(0)} FCFA`;
+    
+    if (currentBalance && data.sender_balance !== undefined) {
+      currentBalance.textContent = `${Number(data.sender_balance || 0).toLocaleString('fr-FR')} FCFA`;
     }
+  } catch (error) {
+    console.error('Error fetching transaction status:', error);
   }
+}
 
-  refreshTransaction();
-  setInterval(refreshTransaction, 2000);
+function updateStatusDot(status) {
+  const dot = document.querySelector('.status-dot');
+  if (dot) {
+    dot.className = `status-dot ${status}`;
+  }
+}
+
+refreshTransaction();
+setInterval(refreshTransaction, 2000);
 </script>
 {% endblock %}

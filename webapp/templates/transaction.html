@@ -1,14 +1,42 @@
 {% extends "base.html" %}
 {% block content %}
 <section class="card">
-  <h2>Nouvelle transaction</h2>
-  <p><strong>Solde disponible:</strong> {{ current_balance_label }}</p>
-  <form method="POST" class="form-grid">
-    <label>Bénéficiaire</label>
-    <input type="text" name="recipient" placeholder="moussa" required>
-    <label>Montant (FCFA)</label>
-    <input type="number" step="1" min="100" name="amount" required>
-    <button type="submit">Envoyer</button>
+  <div class="card-header">
+    <h2>Effectuer un transfert</h2>
+    <p class="card-subtitle">Envoyez de l'argent à un autre utilisateur en toute sécurité.</p>
+  </div>
+  
+  <form method="POST" class="transaction-form">
+    <div class="form-group">
+      <label for="recipient">Bénéficiaire</label>
+      <input type="text" id="recipient" name="recipient" placeholder="Nom d'utilisateur du bénéficiaire" required autocomplete="off">
+      <span class="input-hint">Le nom d'utilisateur de la personne qui recevra les fonds</span>
+    </div>
+    
+    <div class="form-group">
+      <label for="amount">Montant</label>
+      <div class="amount-input-wrapper">
+        <span class="currency-prefix">FCFA</span>
+        <input type="number" id="amount" name="amount" step="1" min="100" placeholder="0" required>
+      </div>
+      <span class="input-hint">Montant minimum : 100 FCFA</span>
+    </div>
+    
+    <div class="form-actions">
+      <button type="submit" class="btn-primary btn-large">Envoyer le transfert</button>
+    </div>
   </form>
+  
+  <div class="security-notice">
+    <div class="notice-icon">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+    </div>
+    <div class="notice-content">
+      <strong>Transaction protégée</strong>
+      <p>Chaque transfert est analysé en temps réel pour détecter d'éventuelles fraudes.</p>
+    </div>
+  </div>
 </section>
 {% endblock %}

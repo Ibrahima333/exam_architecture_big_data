@@ -3,32 +3,57 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fraud Guard</title>
+  <title>Fraude-Signal</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
   <div class="container">
     <header class="topbar">
-      <div>
-        <h1>Fraud Guard</h1>
-        <p class="muted compact">Détection de fraude simple avec modèle Spark, Kafka et MongoDB.</p>
-        {% if session.get('username') and current_balance_label is defined %}
-          <p class="muted compact">Solde actuel: <strong>{{ current_balance_label }}</strong></p>
-        {% endif %}
+      <div class="brand">
+        <div class="logo">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <div class="brand-info">
+          <h1>Fraude-Signal</h1>
+          <p class="tagline">Protection des transactions en temps réel</p>
+        </div>
       </div>
       <div class="topbar-actions">
-        <a href="http://localhost:5001" target="_blank" rel="noreferrer">Dashboard</a>
-        <a href="http://localhost:8080" target="_blank" rel="noreferrer">Airflow</a>
         {% if session.get('username') %}
           <div class="userbox">
-            <span>{{ session.get('username') }}</span>
+            <span class="user-name">{{ session.get('username') }}</span>
             <form method="POST" action="{{ url_for('logout') }}">
-              <button type="submit" class="btn-secondary">Déconnexion</button>
+              <button type="submit" class="btn-secondary">Se déconnecter</button>
             </form>
           </div>
         {% endif %}
       </div>
     </header>
+
+    {% if session.get('username') and current_balance_label is defined %}
+    <div class="balance-hero">
+      <div class="balance-card">
+        <div class="balance-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="4" width="20" height="16" rx="2"/>
+            <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/>
+          </svg>
+        </div>
+        <div class="balance-content">
+          <span class="balance-label">Votre solde</span>
+          <span class="balance-amount">{{ current_balance_label }}</span>
+        </div>
+        <div class="balance-status">
+          <span class="status-badge">
+            <span class="status-dot"></span>
+            Actif
+          </span>
+        </div>
+      </div>
+    </div>
+    {% endif %}
 
     {% with messages = get_flashed_messages() %}
       {% if messages %}
@@ -43,6 +68,10 @@
     <main>
       {% block content %}{% endblock %}
     </main>
+
+    <footer class="footer">
+      <p>Fraude-Signal — Système de sécurisation des transactions</p>
+    </footer>
   </div>
 </body>
 </html>

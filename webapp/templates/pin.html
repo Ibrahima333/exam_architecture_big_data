@@ -1,11 +1,63 @@
 {% extends "base.html" %}
 {% block content %}
-<section class="card warning">
-  <h2>Transaction suspecte</h2>
+<section class="card warning-card">
+  <div class="card-header">
+    <h2>Validation requise</h2>
+    <p class="card-subtitle">Cette transaction nécessite une vérification supplémentaire.</p>
+  </div>
+  
+  <div class="warning-message">
+    <h3>⚠️ Transaction sensible détectée</h3>
+    <p>Pour votre sécurité, merci de confirmer cette opération en saisissant votre code PIN.</p>
+  </div>
+  
   <form method="POST" class="form-grid">
-    <label>Code PIN</label>
-    <input type="password" name="pin" placeholder="••••" maxlength="6" required>
-    <button type="submit">Valider PIN</button>
+    <div class="form-group pin-group">
+      <label for="pin">Votre code PIN</label>
+      <div class="pin-input-wrapper">
+        <input type="password" id="pin" name="pin" placeholder="••••••" maxlength="6" required autocomplete="off" inputmode="numeric">
+        <button type="button" class="pin-toggle" onclick="togglePinVisibility()" aria-label="Afficher le PIN">
+          <svg id="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+      <span class="input-hint">Code PIN à 6 chiffres</span>
+    </div>
+    
+    <div class="form-actions">
+      <button type="submit" class="btn-primary btn-large">Confirmer la transaction</button>
+    </div>
   </form>
+  
+  <div class="security-notice">
+    <div class="notice-icon">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="16" x2="12" y2="12"/>
+        <line x1="12" y1="8" x2="12.01" y2="8"/>
+      </svg>
+    </div>
+    <div class="notice-content">
+      <strong>Gardez votre PIN confidentiel</strong>
+      <p>Ne communiquez jamais votre code PIN, même à un membre de notre équipe.</p>
+    </div>
+  </div>
 </section>
+
+<script>
+function togglePinVisibility() {
+  const pinInput = document.getElementById('pin');
+  const eyeIcon = document.getElementById('eye-icon');
+  
+  if (pinInput.type === 'password') {
+    pinInput.type = 'text';
+    eyeIcon.innerHTML = '<path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/>';
+  } else {
+    pinInput.type = 'password';
+    eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+  }
+}
+</script>
 {% endblock %}

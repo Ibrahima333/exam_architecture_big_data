@@ -10,6 +10,7 @@ from model import score_transaction
 
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "dev_secret_key")
+app.config.setdefault("APP_NAME", "Fraude-Signal")
 
 PRODUCER_URL = os.getenv("PRODUCER_URL", "http://localhost:8001/publish")
 FRAUD_THRESHOLD = float(os.getenv("FRAUD_THRESHOLD", "0.65"))

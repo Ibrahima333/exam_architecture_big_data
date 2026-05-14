@@ -1,0 +1,30 @@
+#!/bin/bash
+# Universal start script for Fraude-Signal
+# Works on Linux, macOS, and Windows (Git Bash/WSL)
+
+set -eu
+
+MODEL_PATH="${MODEL_PATH:-/model/model.pkl}"
+
+# Detect operating system
+detect_os() {
+    case "$(uname -s)" in
+        Linux*)     echo "Linux";;
+        Darwin*)    echo "macOS";;
+        CYGWIN*|MINGW*|MSYS*) echo "Windows";;
+        *)          echo "Unknown";;
+    esac
+}
+
+OS=$(detect_os)
+
+# Check if model file exists
+if [ ! -f "$MODEL_PATH" ]; then
+    echo "Modèle introuvable: $MODEL_PATH"
+    exit 1
+fi
+
+echo "Démarrage de Fraude-Signal (OS: $OS)..."
+
+# Start Flask application
+exec python app.py

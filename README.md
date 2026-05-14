@@ -1,6 +1,6 @@
-# Fraud Detection Platform
+# Fraude-Signal
 
-Plateforme simple de détection de fraude avec:
+Plateforme professionnelle de détection de fraude en temps réel avec:
 - une interface utilisateur Flask
 - un broker Redpanda
 - un cluster Spark standalone
@@ -59,12 +59,38 @@ flowchart LR
 docker compose up --build
 ```
 
-2. Ouvrir les interfaces:
+### Démarrer la webapp localement (optionnel)
+
+Si vous souhaitez lancer la webapp en dehors de Docker:
+
+**Linux/macOS:**
+```bash
+cd webapp
+chmod +x start.sh
+./start.sh
+```
+
+**Windows (PowerShell ou CMD):**
+```cmd
+cd webapp
+start.bat
+```
+
+**Script universel (Git Bash/WSL):**
+```bash
+cd webapp
+chmod +x start
+./start
+```
+
+2. Ouvvrir les interfaces:
 
 ```text
 Webapp           http://localhost:5000
 Dashboard        http://localhost:5001
-Airflow UI       http://localhost:8080
+Airflow UI       http://localhost:8030
+Spark Master UI  http://localhost:8082
+Spark Worker UI  http://localhost:8083
 Redpanda Console http://localhost:8084
 Compass web      http://localhost:8089
 ```
@@ -86,7 +112,7 @@ Login with username: admin password: <mot_de_passe>
 ```
 
 Ensuite:
-- ouvre `http://localhost:8080`
+- ouvre `http://localhost:8030`
 - connecte-toi avec `admin`
 - utilise le mot de passe affiché dans les logs
 

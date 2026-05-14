@@ -68,7 +68,8 @@ services:
       - mongo
 
   spark-master:
-    image: spark:3.5.8-scala2.12-java11-python3-ubuntu
+    build:
+      context: ./spark
     restart: unless-stopped
     entrypoint: []
     command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.master.Master", "--host", "spark-master", "--port", "7077", "--webui-port", "8080"]
@@ -77,7 +78,8 @@ services:
       - "8082:8080"
 
   spark-worker:
-    image: spark:3.5.8-scala2.12-java11-python3-ubuntu
+    build:
+      context: ./spark
     restart: unless-stopped
     entrypoint: []
     command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark-master:7077", "--host", "spark-worker", "--webui-port", "8081", "--cores", "1", "--memory", "1g"]
@@ -113,7 +115,7 @@ services:
       - ./artifacts:/model
       - airflow_data:/opt/airflow
     ports:
-      - "8080:8080"
+      - "8030:8080"
 
   webapp:
     build:
@@ -133,6 +135,9 @@ services:
       - airflow
     volumes:
       - ./artifacts:/model
+      - ./webapp/templates:/app/templates
+      - ./webapp/static:/app/static
+      - ./webapp/app.py:/app/app.py
     ports:
       - "5000:5000"
 
